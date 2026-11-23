@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EV Charge Cost Calculator</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+    body{background:#f0f4f8;max-width:420px;margin:40px auto;padding:20px;}
+    h1{text-align:center;color:#222;margin-bottom:30px;font-size:1.5em;}
+    .card{background:white;padding:25px;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.08);}
+    label{display:block;margin:20px 0 8px;font-weight:500;color:#333;}
+    select,input{width:100%;padding:14px;border:1px solid #bbb;border-radius:8px;font-size:16px;background:white;}
+    button{width:100%;padding:15px;margin-top:25px;background:#0066cc;color:white;border:none;border-radius:8px;font-size:17px;font-weight:bold;cursor:pointer;}
+    button:active{background:#0052a3;}
+    #results{margin-top:25px;padding:20px;background:#e6f0fa;border-radius:8px;display:none;}
+    #results.show{display:block;}
+    .line{margin:10px 0;font-size:16px;}
+    .total{font-size:22px;font-weight:bold;color:#0066cc;margin-top:15px;}
+  </style>
+</head>
+<body>
+
+<h1>⚡ EV Charge Cost Calculator</h1>
+<div class="card">
+  <label for="car">Select Your Vehicle</label>
+  <select id="car">
+    <option value="">-- Please choose a car --</option>
+    <option value="57.5">Tesla Model 3 RWD (57.5 kWh usable)</option>
+    <option value="53.6">Leapmotor B10 (53.6 kWh usable)</option>
+    <option value="50">Vauxhall Mokka-e 2023 (50 kWh usable)</option>
+  </select>
+
+  <label for="before">Battery % BEFORE charge</label>
+  <input type="number" id="before" placeholder="e.g. 25" min="0" max="100">
+
+  <label for="after">Battery % AFTER charge</label>
+  <input type="number" id="after" placeholder="e.g. 75" min="0" max="100">
+
+  <button onclick="calculate()">CALCULATE COST</button>
+
+  <div id="results">
+    <div class="line">🚗 Vehicle: <span id="carName"></span></div>
+    <div class="line">📊 Charge: <span id="pctRange"></span></div>
+    <div class="line">⚡ Energy added: <span id="kwhResult"></span> kWh</div>
+    <div class="total">💰 Total Cost: £<span id="costResult"></span></div>
+    <div class="line" style="font-size:14px;color:#666;margin-top:5px;">@ 19.75p per kWh</div>
+  </div>
+</div>
+
+<script>
+function calculate() {
+  const carDropdown = document.getElementById('car');
+  const before = parseFloat(document.getElementById('before').value);
+  const after = parseFloat(document.getElementById('after').value);
+  const results = document.getElementById('results');
+  const usableKwh = parseFloat(carDropdown.value);
+
+  if (!usableKwh || isNaN(before) || isNaN(after)) {
+    alert('⚠️ Select a car AND enter both percentage values');
+    results.classList.remove('show');
+    return;
+  }
+  if (after <= before || before < 0 || after > 100) {
+    alert('⚠️ "After" % must be HIGHER than "Before" (0–100 only)');
+    results.classList.remove('show');
+    return;
+  }
+
+  const percentAdded = (after - before) / 100;
+  const energyUsed = usableKwh * percentAdded;
+  const costPounds = (energyUsed * 19.75 / 100).toFixed(2);
+
+  document.getElementById('carName').textContent = carDropdown.options[carDropdown.selectedIndex].text;
+  document.getElementById('pctRange').textContent = before + '% → ' + after + '%';
+  document.getElementById('kwhResult').textContent = energyUsed.toFixed(2);
+  document.getElementById('costResult').textContent = costPounds;
+  results.classList.add('show');
+}
+</script>
+
+</body>
+</html>
